@@ -9,44 +9,43 @@ import { REMOVE_BOOK } from '../utils/mutations';
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
   const userData = data?.me || [];
-  const [removeBook, ] = useMutation(REMOVE_BOOK);
-
+  const [removeBook, { error }] = useMutation(REMOVE_BOOK);
   
-
+  
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-
+    
     if (!token) {
       return false;
     }
-
+    
     try {
       await removeBook({
-            variables: { bookId: bookId }
-          });
-          console.log(data)
+        variables: { bookId: bookId }
+      });
+      console.log(data)
+      
+      
+          removeBookId(bookId);
           
-          
-              removeBookId(bookId);
-
-      // upon success, remove book's id from localStorage
-    
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // if data isn't here yet, say so
-  if (loading) {
-    return <h2>LOADING...</h2>;
-  }
-
-  const savedBookIds = userData.savedBooks.map((book) => book.bookId);
+          // upon success, remove book's id from localStorage
+        } catch (err) {
+          console.error(error);
+        }
+      };
+      
+      // if data isn't here yet, say so
+      if (loading) {
+        return <h2>LOADING...</h2>;
+      }
+      
+      // // // sync localStorage with what was returned from the userData query
+       const savedBookIds = userData.savedBooks.map((book) => book.bookId);
         saveBookIds(savedBookIds);
-
-  return (
-    <>
+      
+      return (
+        <>
       <Jumbotron fluid className='text-light bg-dark'>
         <Container>
           <h1>Viewing saved books!</h1>
@@ -56,7 +55,7 @@ const SavedBooks = () => {
         <h2>
           {userData.savedBooks.length
             ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
-            : 'You have no saved books!'}
+            : 'You have no saved books!'} 
         </h2>
         <CardColumns>
           {userData.savedBooks.map((book) => {
